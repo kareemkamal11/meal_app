@@ -1,65 +1,51 @@
 import 'package:flutter/material.dart';
-import 'package:meal_app/data/meal.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meal_app/screens/categories_screen.dart';
 import 'package:meal_app/screens/filters_screen.dart';
 import 'package:meal_app/screens/meals_screen.dart';
 import 'package:meal_app/widgets/main_drawer.dart';
 
-class HomeScreen extends StatefulWidget {
+import 'providers/favorite_provider.dart';
+import 'providers/filters_provider.dart';
+import 'providers/nav_bar_provider.dart';
+
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    int selectedIndex = ref.watch(navBarProvider);
+    final availableFilters = ref.watch(filteredProvider);
 
-class _HomeScreenState extends State<HomeScreen> {
-  int selectedIndex = 0;
+    final favoriteMeals = ref.watch(favoriteMealsProvider);
 
-  onItemTapped(int index) {
-    setState(() {
-      selectedIndex = index;
-    });
-  }
-
-  final List<Meal> favoriteMeals = [];
-
-  void toggleFavorite(Meal meal) {
-    final isFavorite = favoriteMeals.contains(meal);
-    setState(() {
-      isFavorite ? favoriteMeals.remove(meal) : favoriteMeals.add(meal);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    void filterMeals(String id) {
-      Navigator.of(context).pop();
-      if (id == 'filters') {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => const Filters(),
-          ),
-        );
-      }
-    }
-
-    Widget currentScreen = CategoriesScreen(toggleFavorite: toggleFavorite);
+    Widget currentScreen = CategoriesScreen(
+      availableFilters: availableFilters,
+    );
     String title = 'Categories';
 
     if (selectedIndex == 1) {
       currentScreen = MealScreen(
         meals: favoriteMeals,
-        toggleFavorite: toggleFavorite,
       );
       title = 'Favorites';
     }
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: currentScreen,
-      drawer: MainDrawer(toggleFilters: filterMeals),
+      drawer: MainDrawer(toggleFilters: (String id) {
+        Navigator.of(context).pop();
+        if (id == 'filters') {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const Filters(),
+            ),
+          );
+        }
+      }),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,
-        onTap: onItemTapped,
+        onTap: ref.read(navBarProvider.notifier).updateIndex,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.category),

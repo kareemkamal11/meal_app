@@ -5,13 +5,13 @@ import '../widgets/categorey_grid_item.dart';
 
 // ignore: must_be_immutable
 class CategoriesScreen extends StatelessWidget {
-   const CategoriesScreen({
+  const CategoriesScreen({
     super.key,
-    required this.toggleFavorite,
+    required this.availableFilters,
   });
 
-  final void Function(Meal meal) toggleFavorite;
 
+  final List<Meal> availableFilters;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class CategoriesScreen extends StatelessWidget {
         for (final category in availableCategories)
           CategoryGridItem(
             category: category,
-            toggleFavorite: toggleFavorite,
+            availableFilters: availableFilters,
           )
       ],
     );

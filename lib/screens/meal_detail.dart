@@ -1,26 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meal_app/data/meal.dart';
 
-class MealDetial extends StatelessWidget {
+import '../providers/favorite_provider.dart';
+
+class MealDetial extends ConsumerWidget {
   const MealDetial({
     super.key,
     required this.meal,
-    required this.toggleFavorite,
   });
 
   final Meal meal;
-  final void Function(Meal meal) toggleFavorite;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final favoriteMeal = ref.watch(favoriteMealsProvider);
+    final bool isFavorite = favoriteMeal.contains(meal);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(meal.title),
         actions: [
           IconButton(
-            icon: const Icon(Icons.star),
+            icon: Icon(
+              isFavorite ? Icons.star : Icons.star_border,
+              color: Colors.amber,
+            ),
             onPressed: () {
-              toggleFavorite(meal);
+              final wasAdded = ref
+                  .read(favoriteMealsProvider.notifier)
+                  .toggleMealFavoriteStatus(meal);
+              ScaffoldMessenger.of(context).clearSnackBars();
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(wasAdded
+                    ? 'Marked as a favorite!'
+                    : 'Meal is no longer a favorite.'), // Text
+              ));
             },
           ),
         ],
