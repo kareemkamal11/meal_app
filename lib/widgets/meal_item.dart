@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:meal_app/data/meal.dart';
@@ -16,7 +15,6 @@ class MealItem extends StatelessWidget {
   final void Function(Meal meal) selectMeal;
 
   Widget mealInfo({required IconData icon, required String text}) {
-    log(text);
     return Row(
       children: [
         Icon(icon, color: Colors.white),
@@ -45,9 +43,12 @@ class MealItem extends StatelessWidget {
         ),
         child: Stack(
           children: [
-            FadeInImage(
-              placeholder: MemoryImage(kTransparentImage),
-              image: NetworkImage(meal.imageUrl),
+            Hero(
+              tag: meal.id,
+              child: FadeInImage(
+                placeholder: MemoryImage(kTransparentImage),
+                image: NetworkImage(meal.imageUrl),
+              ),
             ),
             Positioned(
               bottom: 0,
